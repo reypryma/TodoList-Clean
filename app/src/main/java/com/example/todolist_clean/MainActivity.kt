@@ -12,4 +12,11 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(findNavController(R.id.navHostFragment))
     }
+
+    //Create nav controller object
+    //action bar title will change depending on fragment that being host
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.navHostFragment)
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
 }
