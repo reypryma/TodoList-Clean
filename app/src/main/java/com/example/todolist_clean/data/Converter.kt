@@ -1,6 +1,7 @@
 package com.example.todolist_clean.data
 
 import androidx.room.TypeConverter
+import com.example.todolist_clean.data.models.Priority
 
 class Converter {
     @TypeConverter

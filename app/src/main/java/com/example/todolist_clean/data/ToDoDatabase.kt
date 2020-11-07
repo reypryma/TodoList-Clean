@@ -2,6 +2,7 @@ package com.example.todolist_clean.data
 
 import android.content.Context
 import androidx.room.*
+import com.example.todolist_clean.data.models.TodoModel
 
 @Database(entities = [TodoModel::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)

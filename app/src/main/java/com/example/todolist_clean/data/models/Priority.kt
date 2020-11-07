@@ -1,4 +1,4 @@
-package com.example.todolist_clean.data
+package com.example.todolist_clean.data.models
 
 enum class Priority {
     HIGH,

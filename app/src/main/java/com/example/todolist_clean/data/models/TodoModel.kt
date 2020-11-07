@@ -1,7 +1,8 @@
-package com.example.todolist_clean.data
+package com.example.todolist_clean.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.todolist_clean.data.models.Priority
 
 @Entity(tableName="todo_table")
 data  class TodoModel (
