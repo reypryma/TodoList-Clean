@@ -2,9 +2,9 @@ package com.example.todolist_clean.data
 
 import android.content.Context
 import androidx.room.*
-import com.example.todolist_clean.data.models.TodoModel
+import com.example.todolist_clean.data.models.ToDoData
 
-@Database(entities = [TodoModel::class], version = 1, exportSchema = false)
+@Database(entities = [ToDoData::class], version = 1, exportSchema = false)
 @TypeConverters(Converter::class)
 abstract class ToDoDatabase: RoomDatabase() {
     abstract fun toDoDao(): TodoDao

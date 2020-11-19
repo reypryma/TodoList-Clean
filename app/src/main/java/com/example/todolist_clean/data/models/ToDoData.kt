@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.example.todolist_clean.data.models.Priority
 
 @Entity(tableName="todo_table")
-data  class TodoModel (
+data  class ToDoData (
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var title: String,

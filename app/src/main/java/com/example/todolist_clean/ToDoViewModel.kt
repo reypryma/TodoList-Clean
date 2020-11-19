@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.example.todolist_clean.data.ToDoDatabase
-import com.example.todolist_clean.data.models.TodoModel
+import com.example.todolist_clean.data.models.ToDoData
 import com.example.todolist_clean.data.repository.ToDoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ class ToDoViewModel(application: Application): AndroidViewModel(application) {
     private val todoDao = ToDoDatabase.getDatabase(application).toDoDao()
     private val repository: ToDoRepository
 
-    private val getAllData: LiveData<List<TodoModel>>
+    private val getAllData: LiveData<List<ToDoData>>
 
 
     init {
@@ -25,8 +25,10 @@ class ToDoViewModel(application: Application): AndroidViewModel(application) {
         getAllData = repository.getAllData
     }
 
-    fun insertData(todoModel: TodoModel){
-        viewModelScope.launch(Dispatchers.IO) { repository.insertData(todoModel) }
+    fun insertData(toDoData: ToDoData){
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertData(toDoData)
+        }
     }
 
 
