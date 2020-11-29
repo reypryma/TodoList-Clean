@@ -38,7 +38,7 @@
             android:layout_marginTop="8dp"
             android:paddingEnd="20dp"
             android:paddingStart="20dp"
-            android:parsePriority="@{args.currentItem.priority}"
+            android:parsePriorityToInt="@{args.currentItem.priority}"
             android:entries="@array/priorities"
             android:background="@drawable/custom_input"
             app:layout_constraintEnd_toEndOf="parent"

@@ -36,37 +36,12 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
             position: Int,
             id: Long
         ) {
-            when (position) {
-
-                //? null mark
-                0 -> {
-                    (parent?.getChildAt(0) as TextView).setTextColor(
-                        ContextCompat.getColor(
-                            getApplication(),
-                            R.color.red
-                        )
-                    )
-                }
-                1 -> {
-                    (parent?.getChildAt(1) as TextView).setTextColor(
-                        ContextCompat.getColor(
-                            getApplication(),
-                            R.color.yellow
-                        )
-                    )
-                }
-                2 -> {
-                    (parent?.getChildAt(2) as TextView).setTextColor(
-                        ContextCompat.getColor(
-                            getApplication(),
-                            R.color.green
-                        )
-                    )
-                }
+            when(position){
+                0 -> { (parent?.getChildAt(0) as TextView).setTextColor(ContextCompat.getColor(application, R.color.red)) }
+                1 -> { (parent?.getChildAt(0) as TextView).setTextColor(ContextCompat.getColor(application, R.color.yellow)) }
+                2 -> { (parent?.getChildAt(0) as TextView).setTextColor(ContextCompat.getColor(application, R.color.green)) }
             }
-
         }
-
     }
 
     fun verifyDataFromUser(title: String, description: String): Boolean {
