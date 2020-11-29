@@ -8,10 +8,10 @@ import kotlinx.android.parcel.Parcelize
 
 @Entity(tableName="todo_table")
 @Parcelize
-data  class ToDoData (
+data class ToDoData(
     @PrimaryKey(autoGenerate = true)
     var id: Int,
     var title: String,
     var priority: Priority,
     var description: String
-):Parcelable
+): Parcelable
