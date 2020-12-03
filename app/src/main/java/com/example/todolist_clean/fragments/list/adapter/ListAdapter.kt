@@ -8,34 +8,40 @@ import com.example.todolist_clean.data.models.ToDoData
 import com.example.todolist_clean.databinding.RowLayoutBinding
 import com.example.todolist_clean.fragments.list.ToDoDiffUtil
 
-class ListAdapter: RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
+class ListAdapter : RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
+
     var dataList = emptyList<ToDoData>()
 
-    class MyViewHolder(private var binding: RowLayoutBinding): RecyclerView.ViewHolder(binding.root){
+    class MyViewHolder(private val binding: RowLayoutBinding) : RecyclerView.ViewHolder(binding.root){
+
         fun bind(toDoData: ToDoData){
             binding.toDoData = toDoData
             binding.executePendingBindings()
         }
-        companion object {
+        companion object{
             fun from(parent: ViewGroup): MyViewHolder {
                 val layoutInflater = LayoutInflater.from(parent.context)
-                val binding = RowLayoutBinding.inflate(layoutInflater, parent, true )
-                return MyViewHolder(binding)
+                val binding = RowLayoutBinding.inflate(layoutInflater, parent, false)
+                return MyViewHolder(
+                    binding
+                )
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
-        return MyViewHolder.from(parent)
+        return MyViewHolder.from(
+            parent
+        )
+    }
+
+    override fun getItemCount(): Int {
+        return dataList.size
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val currentItem = dataList[position]
         holder.bind(currentItem)
-    }
-
-    override fun getItemCount(): Int {
-        return dataList.size
     }
 
     fun setData(toDoData: List<ToDoData>){
@@ -44,5 +50,4 @@ class ListAdapter: RecyclerView.Adapter<ListAdapter.MyViewHolder>() {
         this.dataList = toDoData
         toDoDiffResult.dispatchUpdatesTo(this)
     }
-
 }

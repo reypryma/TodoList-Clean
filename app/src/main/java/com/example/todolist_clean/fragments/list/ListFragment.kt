@@ -3,14 +3,14 @@ package com.example.todolist_clean.fragments.list
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
-import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.todolist_clean.R
 import com.example.todolist_clean.SwipeToDelete
 import com.example.todolist_clean.ToDoViewModel
@@ -19,8 +19,9 @@ import com.example.todolist_clean.databinding.FragmentListBinding
 import com.example.todolist_clean.fragments.SharedViewModel
 import com.example.todolist_clean.fragments.list.adapter.ListAdapter
 import com.google.android.material.snackbar.Snackbar
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator
 
-class ListFragment : Fragment() {
+class ListFragment : Fragment(), SearchView.OnQueryTextListener {
     private val adapter: ListAdapter by lazy { ListAdapter() }
 
     private val mToDoViewModel: ToDoViewModel by viewModels()
@@ -33,14 +34,10 @@ class ListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
+        // Data binding
         _binding = FragmentListBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.mSharedViewModel = mSharedViewModel
-        /*        val view = inflater.inflate(R.layout.fragment_list, container, false)
-        val recycleView = view.recycleView
-        recycleView.adapter = adapter;
-        recycleView.layoutManager = LinearLayoutManager(requireActivity())*/
 
         setupRecyclerView()
 
@@ -53,7 +50,7 @@ class ListFragment : Fragment() {
 
         //Show menu
         setHasOptionsMenu(true)
-        return binding.root;
+        return binding.root
     }
 
     override fun onDestroyView() {
@@ -65,64 +62,105 @@ class ListFragment : Fragment() {
     private fun setupRecyclerView() {
         val recycleView = binding.recycleView
         recycleView.adapter = adapter
-        recycleView.layoutManager = LinearLayoutManager(requireActivity())
+        recycleView.layoutManager =
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        recycleView.itemAnimator = SlideInUpAnimator().apply {
+            addDuration = 300
+        }
         swipeToDelete(recycleView)
     }
 
-    private fun swipeToDelete(recyclerView: RecyclerView){
-        val swipeToDeleteCallback = object : SwipeToDelete(){
+    private fun swipeToDelete(recyclerView: RecyclerView) {
+        val swipeToDeleteCallback = object : SwipeToDelete() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val itemToDelete = adapter.dataList[viewHolder.adapterPosition]
-                //Delete Item
-                mToDoViewModel.deleteItem(itemToDelete)
-                Toast.makeText(requireContext(), "Successfully deleted: ${itemToDelete.title}", Toast.LENGTH_SHORT).show()
-
-                //Restore Deleted Item
-                restoreDeletedData(viewHolder.itemView, itemToDelete, viewHolder.adapterPosition)
+                val deletedItem = adapter.dataList[viewHolder.adapterPosition]
+                // Delete Item
+                mToDoViewModel.deleteItem(deletedItem)
+                adapter.notifyItemRemoved(viewHolder.adapterPosition)
+                // Restore Deleted Item
+                restoreDeletedData(viewHolder.itemView, deletedItem)
             }
         }
-
         val itemTouchHelper = ItemTouchHelper(swipeToDeleteCallback)
         itemTouchHelper.attachToRecyclerView(recyclerView)
     }
-    
-    private fun restoreDeletedData(view: View, deletedItem: ToDoData, position: Int): Unit {
-        val snackbar = Snackbar.make(
+
+
+    private fun restoreDeletedData(view: View, deletedItem: ToDoData) {
+        val snackBar = Snackbar.make(
             view, "Deleted '${deletedItem.title}'",
             Snackbar.LENGTH_LONG
         )
-        snackbar.setAction("Undo"){
+        snackBar.setAction("Undo") {
             mToDoViewModel.insertData(deletedItem)
-            adapter.notifyItemChanged(position)
-        }.show()
+        }
+        snackBar.show()
     }
 
     //Create menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.list_fragment_menu, menu)
+
+        val search: MenuItem = menu.findItem(R.id.menu_search)
+        val searchView: SearchView? = search.actionView as? SearchView
+        //because we already implement method in this class
+        searchView?.setOnQueryTextListener(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_delete_all){
-               confirmRemoval()
+        when (item.itemId) {
+            R.id.menu_delete_all -> confirmRemoval()
+            R.id.menu_priority_high -> mToDoViewModel.sortByHighPriority.observe(this, {
+                adapter.setData(it)
+            })
+            R.id.menu_priority_low -> mToDoViewModel.sortByLowPriority.observe(this, {
+                adapter.setData(it)
+            })
         }
         return super.onOptionsItemSelected(item)
     }
 
+    // Show AlertDialog to Confirm Removal of All Items from Database Table
     private fun confirmRemoval() {
         val builder = AlertDialog.Builder(requireContext())
-        builder.setPositiveButton("Yes"){_, _ ->
+        builder.setPositiveButton("Yes") { _, _ ->
             mToDoViewModel.deleteAll()
-            Toast.makeText(requireContext(), "Successfully deleted everything",
-                Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Successfully Removed Everything!",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-        findNavController().navigate(R.id.action_updateFragment_to_listFragment)
-        builder.setNegativeButton("No"){
-                _, _ ->
-        }
-        builder.setTitle("Delete Everything?")
-        builder.setMessage("Are you sure want to remove everything?")
+        builder.setNegativeButton("No") { _, _ -> }
+        builder.setTitle("Delete everything?")
+        builder.setMessage("Are you sure you want to remove everything?")
         builder.create().show()
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if (query != null) {
+            searchThroughDB(query)
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(query: String?): Boolean {
+        if (query != null) {
+            searchThroughDB(query)
+        }
+        return true
+    }
+
+
+    private fun searchThroughDB(query: String) {
+        var searchQuery: String = query
+        searchQuery = "%$searchQuery%"
+
+        mToDoViewModel.searchDatabase(searchQuery).observe(this, { list ->
+            list?.let {
+                adapter.setData(it)
+            }
+        })
     }
 }
 

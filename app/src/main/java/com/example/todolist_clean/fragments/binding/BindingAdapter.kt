@@ -1,8 +1,10 @@
 package com.example.todolist_clean.fragments.binding
 
 import android.graphics.Color
+import android.os.Build
 import android.view.View
 import android.widget.Spinner
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -21,9 +23,12 @@ class BindingAdapter {
         @JvmStatic
         fun navigateToAddFragment(view: FloatingActionButton, navigate: Boolean){
             view.setOnClickListener{
-                view.findNavController().navigate(R.id.action_listFragment_to_addFragment)
+                if(navigate){
+                    view.findNavController().navigate(R.id.action_listFragment_to_addFragment)
+                }
             }
         }
+
         @BindingAdapter("android:emptyDatabase")
         @JvmStatic
         fun emptyDatabase(view: View, emptyDatabase: MutableLiveData<Boolean>){
@@ -43,23 +48,24 @@ class BindingAdapter {
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.M)
         @BindingAdapter("android:parsePriorityColor")
         @JvmStatic
         fun parsePriorityColor(cardView: CardView, priority: Priority){
             when(priority){
-                Priority.HIGH -> { cardView.setCardBackgroundColor(Color.parseColor(R.color.red.toString())) }
-                Priority.MEDIUM -> { cardView.setCardBackgroundColor(Color.parseColor(R.color.yellow.toString())) }
-                Priority.LOW -> { cardView.setCardBackgroundColor(Color.parseColor(R.color.green.toString())) }
+                Priority.HIGH -> { cardView.setCardBackgroundColor(cardView.context.getColor(R.color.red)) }
+                Priority.MEDIUM -> { cardView.setCardBackgroundColor(cardView.context.getColor(R.color.yellow)) }
+                Priority.LOW -> { cardView.setCardBackgroundColor(cardView.context.getColor(R.color.green)) }
             }
         }
 
         @BindingAdapter("android:sendDataToUpdate")
         @JvmStatic
-        fun sendDataToUpdate(view: ConstraintLayout, currentItem : ToDoData): Unit {
-               view.setOnClickListener {
-                   val action = ListFragmentDirections.actionListFragmentToUpdateFragment(currentItem)
-                   view.findNavController().navigate(action)
-               }
+        fun sendDataToUpdate(view: ConstraintLayout, currentItem : ToDoData){
+            view.setOnClickListener {
+                val action = ListFragmentDirections.actionListFragmentToUpdateFragment(currentItem)
+                view.findNavController().navigate(action)
+            }
         }
     }
 }

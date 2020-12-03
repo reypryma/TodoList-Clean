@@ -5,7 +5,7 @@ import androidx.room.*
 import com.example.todolist_clean.data.models.ToDoData
 
 @Dao
-public interface TodoDao {
+interface TodoDao {
 
     @Query("SELECT * FROM todo_table ORDER BY id ASC")
     //observe the data changes using liveData and notified it to observer
@@ -23,5 +23,14 @@ public interface TodoDao {
 
     @Query("DELETE FROM todo_table")
     suspend fun deleteAll()
+
+    @Query("SELECT * FROM todo_table WHERE title LIKE :searchQuery")
+    fun searchDatabase(searchQuery: String): LiveData<List<ToDoData>>
+
+    @Query("SELECT * FROM todo_table ORDER BY CASE WHEN priority LIKE 'H%' THEN 1 WHEN priority LIKE 'M%' THEN 2 WHEN priority LIKE 'L%' THEN 3 END")
+    fun sortByHighPriority(): LiveData<List<ToDoData>>
+
+    @Query("SELECT * FROM todo_table ORDER BY CASE WHEN priority LIKE 'L%' THEN 1 WHEN priority LIKE 'M%' THEN 2 WHEN priority LIKE 'H%' THEN 3 END")
+    fun sortByLowPriority(): LiveData<List<ToDoData>>
 
 }
